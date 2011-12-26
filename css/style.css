@@ -62,14 +62,15 @@ tr.ui-widget-content.jqgrow.ui-row-ltr td:first-child {
 
 .params input {
   width: 50px;
+  border: none;
 }
 .params>div {
   float: left;
   margin-right: 10px;
   min-width: 200px;
 }
-.params input {
-  border: none;
+.params form {
+  margin-bottom: 10px;
 }
 
 /*
