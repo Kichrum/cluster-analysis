@@ -6,7 +6,8 @@ var IeitTraining = jQuery.Class.create({
     this.options = jQuery.extend({
           selectionLevel: 0.53,
           admission: 40,
-          kfeType: 'shannon'
+          kfeType: 'shannon',
+          optimization: 'basic'
         }, options);
     this.ieitData = data;
     this.data = Array();
@@ -16,15 +17,25 @@ var IeitTraining = jQuery.Class.create({
     
     this.selectionLevel = options.selectionLevel;
     this.admission = options.admission;
-    this.controlApprovals();
+    
+    if(options.optimization == 'parallel') {
+      this.parallelOptimization();
+    }
+    else {
+      this.controlApprovalsBasic();
+      this.trainingBasic();
+    }
+  },
+  // Базовий алгоритм навчання
+  trainingBasic: function() {
     this.binEtalon();
     this.codeDistance();
     this.neighbour();
     this.characteristics();
-    this.optimalRadius();  
+    this.optimalRadius();
   },
   // Створення масиву контрольних допусків
-  controlApprovals: function() {
+  controlApprovalsBasic: function() {
     for(var i = 0; i < this.ieitData.length; i++) {
       this.data[i].dk = Array();
       this.data[i].ndk = Array();
@@ -45,6 +56,7 @@ var IeitTraining = jQuery.Class.create({
   },
   // Створення бінарної матриці та еталонного вектора
   binEtalon: function(){
+    //console.log(this.data[0].ndk[50] + ' ' + this.data[0].vdk[50]);
     for(var i = 0; i < this.ieitData.length; i++) {
       this.data[i].binaryMatrix = Array();
       this.data[i].etalonVector = Array();
@@ -161,7 +173,7 @@ var IeitTraining = jQuery.Class.create({
   },
   // Обчислення КФЕ за мірою Кульбака
   kulbakKfe: function(alpha, beta, d1, d2){
-    console.log('kulbak');
+    //console.log('kulbak');
     alpha+=alpha?0:0.00001; // А чи можна так робити?...
     beta+=beta?0:0.00001; // І так... Бо інакше виходять розірвані графіки!
     return ( (d1+d2) && (alpha+beta)
@@ -351,5 +363,78 @@ var IeitTraining = jQuery.Class.create({
       navigation: true,
       autoHeight: false
     });
+  },
+  
+  // Паралельна оптимізація
+  // Створення масиву контрольних допусків для паралельної оптимізації
+  controlApprovals: function() {
+    for(var i = 0; i < this.ieitData.length; i++) {
+      this.data[i].dk = Array();
+      this.data[i].min = Array();
+      this.data[i].max = Array();
+      this.data[i].ndk = Array();
+      this.data[i].vdk = Array();
+      for(var j = 0; j < this.ieitData[i].trainingMatrix.length; j++) {
+        var height = this.ieitData[i].trainingMatrix[j].length;
+        this.data[i].dk[j] = 0;
+        this.data[i].min[j] = this.ieitData[i].trainingMatrix[j][0];
+        this.data[i].max[j] = this.ieitData[i].trainingMatrix[j][0];
+        for(var k = 0; k < height; k++) {
+          this.data[i].dk[j] += this.ieitData[i].trainingMatrix[j][k];
+          if(this.ieitData[i].trainingMatrix[j][k] < this.data[i].min[j])
+            this.data[i].min[j] = this.ieitData[i].trainingMatrix[j][k];
+          if(this.ieitData[i].trainingMatrix[j][k] > this.data[i].max[j])
+            this.data[i].max[j] = this.ieitData[i].trainingMatrix[j][k];
+        }
+        this.data[i].dk[j] /= height;
+        this.data[i].dk[j] = Math.floor(this.data[i].dk[j]); // may be round =)
+        this.data[i].ndk[j] = this.data[i].min[j];//this.data[i].dk[j] - admission;
+        this.data[i].vdk[j] = this.data[i].max[j];//this.data[i].dk[j] + +admission;
+      }
+      //console.log(this.data[i].dk[50]);
+    }
+  },
+  parallelOptimization: function() {
+    var iterationsCount = 100;
+    this.controlApprovals();
+    for(var i = 0; i < this.ieitData.length; i++) {
+      this.data[i].step = Array();
+      for(var j = 0; j < this.ieitData[i].trainingMatrix.length; j++) {
+        this.data[i].step[j] = (this.data[i].max[j] - this.data[i].min[j]) / (iterationsCount*2); // Визначення кроку стиснення
+      }
+    }
+    
+    this.optimized = Object();
+    this.optimized.kfe = 0;
+    for(var iteration = 0; iteration < iterationsCount; iteration++) {
+      for(var i = 0; i < this.ieitData.length; i++) {
+        for(var j = 0; j < this.ieitData[i].trainingMatrix.length; j++) {
+          this.data[i].ndk[j] = this.data[i].ndk[j] + +this.data[i].step[j];
+          this.data[i].vdk[j] = this.data[i].vdk[j] - this.data[i].step[j];
+        }
+      }
+      this.trainingBasic();
+      var sum = 0;
+      for(var i = 0; i < this.ieitData.length; i++) {
+        sum += this.data[i].trainingData.kfe;
+      }
+      if(sum >= this.optimized.kfe) {
+        console.log(sum);
+        this.optimized.kfe = sum;
+        this.optimized.data = Array();
+        for(var i = 0; i < this.ieitData.length; i++) {
+          this.optimized.data[i] = Object();
+          this.optimized.data[i].ndk = this.data[i].ndk.concat();
+          this.optimized.data[i].vdk = this.data[i].vdk.concat();
+        }
+      }
+    }
+    
+    for(var i = 0; i < this.ieitData.length; i++) {
+      this.optimized.kfe = this.data[i].trainingData.kfe;
+      this.data[i].ndk = this.optimized.data[i].ndk;
+      this.data[i].vdk = this.optimized.data[i].vdk;
+    }
+    this.trainingBasic();
   }
 });

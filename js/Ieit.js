@@ -71,14 +71,21 @@ var Ieit = jQuery.Class.create({
       admission: $(options.admissionSel).val(),
       kfeType: options.kfeType
     });
-    /*
-    this.trainingBasic.drawBinaryMatrixes('#binary-matrix');
-    this.trainingBasic.drawEtalonVectors('#etalon-matrix');
-    this.trainingBasic.printCharacteristics('#characteristics');
-    this.trainingBasic.printOptimalRadius('#radius');
-    this.trainingBasic.drawOptimization('#optimization-chart');
-    this.trainingBasic.printCodeDistance('#code-distance');
-    */
+  },
+  
+  optimizationParallel: function(options) {
+    options = jQuery.extend({
+          selectionLevelSel: '#sel-level',
+          admissionSel: '#admission',
+          kfeType: 'shannon'
+        }, options);
+    //console.log(options.kfeType);
+    this.trainingParallel = new IeitTraining(this.data, {
+      selectionLevel: $(options.selectionLevelSel).val(),
+      admission: $(options.admissionSel).val(),
+      kfeType: options.kfeType,
+      optimization: 'parallel'
+    });
   }
   
 });
