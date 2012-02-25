@@ -44,7 +44,6 @@ var IeitDraw = jQuery.Class.create({
       step: options.step,
       slide: function(event, ui) {
         $(options.input).val(ui.value);
-        //BinEtalon();
       }
     });
     $(options.input).val($(options.selector).slider("value"));
@@ -80,7 +79,6 @@ var IeitDraw = jQuery.Class.create({
       mydata[i] = {};
       mydata[i].id0 = i+1;
       for(var j = 0; j <= (options.sub_arr?options.arr[i][options.sub_arr].length:options.arr[i].length); j++) {
-        //console.log(options.arr[i][options.sub_arr][j]);
         eval('mydata['+i+'].id'+(j+1)+' = '+ (options.sub_arr?options.arr[i][options.sub_arr][j]:options.arr[i][j]));
       }
     }

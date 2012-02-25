@@ -18,6 +18,7 @@
     <script type="text/javascript" src="js/IeitClass.js"></script>
     <script type="text/javascript" src="js/Ieit.js"></script>
     <script type="text/javascript" src="js/IeitLoad.js"></script>
+    <script type="text/javascript" src="js/IeitExam.js"></script>
 	</head>
 	<body>
 		<div id="tabs">
@@ -59,7 +60,7 @@
             </form>
             <form id="set-opt">
               Провести <input type="radio" id="parallel" name="radio" /><label for="parallel">паралельну
-              </label><input type="radio" id="consistent" name="radio" /><label for="consistent">послідовну</label>
+              </label><input type="radio" id="series" name="radio" /><label for="series">послідовну</label>
               оптимізацію
             </form>
           </div>
@@ -87,44 +88,37 @@
         <ul>
           <li><a href="#restabs-characteristics">Точнісні характеристики</a></li>
           <li><a href="#restabs-parallel">Паралельна оптимізація</a></li>
-          <li><a href="#restabs-serial">Послідовна оптимізація</a></li>
+          <li><a href="#restabs-series">Послідовна оптимізація</a></li>
         </ul>
         <div id="restabs-characteristics">
-          <div id="characteristics"></div>
-          <div id="optimization-chart"></div>
+          <div id="characteristics" class="characteristics"></div>
+          <div id="optimization-chart" class="optimization-chart"></div>
           <div class="clr"></div>
         </div>
-        <div id="restabs-parallel">Далі буде... Скоро!</div>
-        <div id="restabs-serial">Далі буде... Не дуже скоро!</div>
+        <div id="restabs-parallel">
+          <div id="parallel-characteristics" class="characteristics"></div>
+          <div id="parallel-optimization-chart" class="optimization-chart"></div>
+          <div class="clr"></div>
+        </div>
+        <div id="restabs-series">
+          <div id="series-characteristics" class="characteristics"></div>
+          <div id="series-optimization-chart" class="optimization-chart"></div>
+          <div class="clr"></div>
+        </div>
       </div>
-      <div id="tabs-exam">Далі буде...</div>
+      <div id="tabs-exam">
+          Номер класу:
+          <input type="text" id="exam-class"></input>
+          <div id="exam-class-slider" class="slider"></div>
+          Номер реалізації:
+          <input type="text" id="exam-impl"></input>
+          <div id="exam-impl-slider" class="slider"></div>
+          <button id="exam-do">Провести екзамен</button>
+          <div id="exam-results"></div>
+        </div>
+      </div>
 		</div>
-
-<table id="testing"></table>
-<button id="test">Тестувати</button>
-<div id="dialog-message" title="Тестування елементів сторінки">
-  На даний момент нічого тестувати! ;)
-</div>
-<script type="text/javascript">
-  $( "#dialog-message" ).dialog({
-    autoOpen: false,
-    modal: true,
-    buttons: {
-      Ok: function() {
-        $( this ).dialog( "close" );
-      }
-    }
-  });
-$('#test').click(function(){
-  //alert('Testing started');
-  
-  $('#dialog-message').dialog('open');
-  
-  //alert('Testing ended');
-  }
-);
-
-</script>
+    <p align="right"><small><a href="images.zip">Завантажити зразок зображень</a></small></p>
 	</body>
 </html>
 

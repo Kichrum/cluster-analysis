@@ -21,6 +21,9 @@ var IeitTraining = jQuery.Class.create({
     if(options.optimization == 'parallel') {
       this.parallelOptimization();
     }
+    else if(options.optimization == 'series') {
+      this.seriesOptimization();
+    }
     else {
       this.controlApprovalsBasic();
       this.trainingBasic();
@@ -51,12 +54,10 @@ var IeitTraining = jQuery.Class.create({
         this.data[i].ndk[j] = this.data[i].dk[j] - this.admission;
         this.data[i].vdk[j] = this.data[i].dk[j] + +this.admission;
       }
-      //console.log(this.data[i].dk[50]);
     }
   },
   // Створення бінарної матриці та еталонного вектора
   binEtalon: function(){
-    //console.log(this.data[0].ndk[50] + ' ' + this.data[0].vdk[50]);
     for(var i = 0; i < this.ieitData.length; i++) {
       this.data[i].binaryMatrix = Array();
       this.data[i].etalonVector = Array();
@@ -73,8 +74,6 @@ var IeitTraining = jQuery.Class.create({
         ev /= height;
         this.data[i].etalonVector[j] = (ev >= this.selectionLevel) ? 1 : 0;
       }
-      //console.log(this.data[i].etalonVector[50]);
-      //console.log(this.data[i].vdk[50]);
     }
   },
   drawBinaryMatrixes: function(selector){
@@ -111,7 +110,6 @@ var IeitTraining = jQuery.Class.create({
         this.data[i].codeDistance[j] = 0;
         for(var k = 0; k < width; k++)
           this.data[i].codeDistance[j] += (this.data[i].etalonVector[k] + this.data[j].etalonVector[k]) % 2;
-        //console.log(this.data[i].codeDistance[j]);
       }
     }
   },
@@ -134,7 +132,6 @@ var IeitTraining = jQuery.Class.create({
           )
         )
           this.data[i].neighbour['nb'] = j;
-      //console.log(this.data[i].neighbour['nb']);
       
       // 2. Побудова матриці SK
       for(var j = 0; j < height; j++) {
@@ -146,7 +143,6 @@ var IeitTraining = jQuery.Class.create({
         this.data[i].neighbour[j] = Array();
         this.data[i].neighbour[j]['sk1'] = sk1;
         this.data[i].neighbour[j]['sk2'] = sk2;
-        //console.log(i + ' ' + this.data[i].neighbour[j]['sk1'] + ' ' + this.data[i].neighbour[j]['sk2']);
       }
     }
   },
@@ -184,9 +180,8 @@ var IeitTraining = jQuery.Class.create({
   characteristics: function(){
     for(var i = 0; i < this.data.length; i++) {
       var height = this.data[i].binaryMatrix[0].length;
-      var dmax = this.data[i].codeDistance[this.data[i].neighbour['nb']];
       this.data[i].kfe = Array();
-      for(var d = 0; d < dmax; d++) {
+      for(var d = 0; d < height; d++) {
         this.data[i].kfe[d] = Array();
         this.data[i].kfe[d]['k1'] = this.data[i].kfe[d]['k2'] = this.data[i].kfe[d]['k3'] = this.data[i].kfe[d]['k4'] = 0;
         for(var j = 0; j < height; j++) {
@@ -199,12 +194,10 @@ var IeitTraining = jQuery.Class.create({
           else
             this.data[i].kfe[d]['k4']++;
         }
-        //console.log(this.data[i].kfe[d]['k3']);
         this.data[i].kfe[d]['d1'] = this.data[i].kfe[d]['k1'] / height;
         this.data[i].kfe[d]['alpha'] = this.data[i].kfe[d]['k2'] / height;
         this.data[i].kfe[d]['beta'] = this.data[i].kfe[d]['k3'] / height;
         this.data[i].kfe[d]['d2'] = this.data[i].kfe[d]['k4'] / height;
-        //console.log(this.data[i].kfe[d]['alpha']);
         var criterion = this.shannonKfe;
         if(this.options.kfeType != 'shannon')
           criterion = this.kulbakKfe;
@@ -214,17 +207,17 @@ var IeitTraining = jQuery.Class.create({
           this.data[i].kfe[d]['d1'],
           this.data[i].kfe[d]['d2']
         );
-        //console.log(d + ' ' + this.data[i].kfe[d]['kfe']);
       }
     }
   },
   // Виведення точнісних характеристик
   printCharacteristics: function(selector){
     $(selector).empty();
+    var tempRnd = Math.floor(Math.random()*1000);
     for(var i = 0; i < this.data.length; i++) {
-      var dmax = this.data[i].codeDistance[this.data[i].neighbour['nb']];
-      $(selector).append('<table id="characteristics-table-'+i+'" />');
-      var table = $('#characteristics-table-'+i);
+      var height = this.data[i].binaryMatrix[0].length;
+      $(selector).append('<table id="characteristics-table-'+tempRnd+'-'+i+'" />');
+      var table = $('#characteristics-table-'+tempRnd+'-'+i);
       jQuery(table).jqGrid({
         datatype: "local",
         height: "auto",
@@ -242,10 +235,10 @@ var IeitTraining = jQuery.Class.create({
           {name:'kfe', width: 170}
         ],
         caption: "Точнісні характеристики класу №" + +(i+1),
-        rowNum: dmax,
+        rowNum: height,
         hiddengrid: true
       });
-      for(var d = 0; d < dmax; d++) {
+      for(var d = 0; d < height; d++) {
         jQuery(table).jqGrid('addRowData',d,
           {
             d: d,
@@ -269,8 +262,8 @@ var IeitTraining = jQuery.Class.create({
       this.data[i].trainingData = Object();
       this.data[i].trainingData.d = 0;
       this.data[i].trainingData.kfe = 0;
-      var dmax = this.data[i].codeDistance[this.data[i].neighbour['nb']];
-      for(var d = 0; d < dmax; d++) {
+      var height = this.data[i].binaryMatrix[0].length;
+      for(var d = 0; d < height; d++) {
         if(this.data[i].kfe[d]['d1'] >= 0.5 && this.data[i].kfe[d]['d2'] >= 0.5) {
           if(this.data[i].kfe[d]['kfe'] > this.data[i].trainingData.kfe)
           {
@@ -279,8 +272,6 @@ var IeitTraining = jQuery.Class.create({
           }
         }
       }
-      //console.log('kfe = ' + dataBase.trainingData[i].kfe + ', d = ' + dataBase.trainingData[i].d);
-      //jQuery(table).jqGrid('addRowData',i+1,{klas: i+1, kfe: dataBase.trainingData[i].kfe, d: dataBase.trainingData[i].d});
     }
   },
   printOptimalRadius: function(selector) {
@@ -306,13 +297,15 @@ var IeitTraining = jQuery.Class.create({
   drawOptimization: function(selector){
     $(selector).empty();
     $(selector).accordion('destroy');
+    var tempRnd = Math.floor(Math.random()*1000);
     for(var i = 0; i < this.data.length; i++) {
-      $(selector).append('<h3><a href="#class'+(i+1)+'">Графік для '+(i+1)+'-го класу</a></h3><div id="optimization-container-'+i+'" style="width: 488px; height: 300px; margin: 0 auto"></div>');
-      var dmax = this.data[i].codeDistance[this.data[i].neighbour['nb']];
+      $(selector).append('<h3><a href="#class'+tempRnd+'-'+(i+1)+'">Графік для '+(i+1)+'-го класу</a></h3><div id="optimization-container-'+tempRnd+'-'+i+'" style="width: 488px; height: 300px; margin: 0 auto"></div>');
+      var height = this.data[i].binaryMatrix[0].length;
+      //var dmax = 100;//this.data[i].binaryMatrix[0][0].length; //this.data[i].codeDistance[this.data[i].neighbour['nb']];
       var categories = Array(), data = Object();
       data.main = Array();
       data.sel = Array();
-      for(var d = 0; d < dmax; d++) {
+      for(var d = 0; d < height; d++) {
         if(this.data[i].kfe[d]['d1'] >= 0.5 && this.data[i].kfe[d]['d2'] >= 0.5) {
           data.sel[d] = this.data[i].kfe[d]['kfe'];
           data.main[d] = 0;
@@ -325,7 +318,7 @@ var IeitTraining = jQuery.Class.create({
       var chart;
       chart = new Highcharts.Chart({
         chart: {
-          renderTo: 'optimization-container-'+i,
+          renderTo: 'optimization-container-'+tempRnd+'-'+i,
           defaultSeriesType: 'column',
           zoomType: 'xy'
         },
@@ -387,11 +380,10 @@ var IeitTraining = jQuery.Class.create({
             this.data[i].max[j] = this.ieitData[i].trainingMatrix[j][k];
         }
         this.data[i].dk[j] /= height;
-        this.data[i].dk[j] = Math.floor(this.data[i].dk[j]); // may be round =)
-        this.data[i].ndk[j] = this.data[i].min[j];//this.data[i].dk[j] - admission;
-        this.data[i].vdk[j] = this.data[i].max[j];//this.data[i].dk[j] + +admission;
+        this.data[i].dk[j] = Math.round(this.data[i].dk[j]);
+        this.data[i].ndk[j] = this.data[i].min[j];
+        this.data[i].vdk[j] = this.data[i].max[j];
       }
-      //console.log(this.data[i].dk[50]);
     }
   },
   parallelOptimization: function() {
@@ -419,7 +411,6 @@ var IeitTraining = jQuery.Class.create({
         sum += this.data[i].trainingData.kfe;
       }
       if(sum >= this.optimized.kfe) {
-        console.log(sum);
         this.optimized.kfe = sum;
         this.optimized.data = Array();
         for(var i = 0; i < this.ieitData.length; i++) {
@@ -429,11 +420,49 @@ var IeitTraining = jQuery.Class.create({
         }
       }
     }
-    
     for(var i = 0; i < this.ieitData.length; i++) {
-      this.optimized.kfe = this.data[i].trainingData.kfe;
-      this.data[i].ndk = this.optimized.data[i].ndk;
-      this.data[i].vdk = this.optimized.data[i].vdk;
+      this.optimized.kfe += this.data[i].trainingData.kfe
+      this.data[i].ndk = this.optimized.data[i].ndk.concat();
+      this.data[i].vdk = this.optimized.data[i].vdk.concat();
+    }
+    this.trainingBasic();
+  },
+  seriesOptimization: function() {
+    var iterationsCount = 100;
+    this.controlApprovals();
+    for(var i = 0; i < this.ieitData.length; i++) {
+      this.data[i].step = Array();
+      for(var j = 0; j < this.ieitData[i].trainingMatrix.length; j++) {
+        this.data[i].step[j] = (this.data[i].max[j] - this.data[i].min[j]) / (iterationsCount*2); // Визначення кроку стиснення
+      }
+    }
+    
+    this.optimized = Object();
+    this.optimized.kfe = 0;
+    for(var matrix = 0; matrix < this.ieitData.length; matrix++) {
+      for(var step = 0; step < this.ieitData[matrix].trainingMatrix.length; step++) {
+        this.data[matrix].ndk[step] = this.data[matrix].ndk[step] + +this.data[matrix].step[step];
+        this.data[matrix].vdk[step] = this.data[matrix].vdk[step] - this.data[matrix].step[step];          
+        this.trainingBasic();
+        var sum = 0;
+        for(var i = 0; i < this.ieitData.length; i++) {
+            sum += this.data[i].trainingData.kfe;
+        }
+        if(sum >= this.optimized.kfe) {
+          this.optimized.kfe = sum;
+          this.optimized.data = Array();
+          for(var i = 0; i < this.ieitData.length; i++) {
+            this.optimized.data[i] = Object();
+            this.optimized.data[i].ndk = this.data[i].ndk.concat();
+            this.optimized.data[i].vdk = this.data[i].vdk.concat();
+          }
+        }
+      }
+    }
+    for(var i = 0; i < this.ieitData.length; i++) {
+      this.optimized.kfe += this.data[i].trainingData.kfe
+      this.data[i].ndk = this.optimized.data[i].ndk.concat();
+      this.data[i].vdk = this.optimized.data[i].vdk.concat();
     }
     this.trainingBasic();
   }

@@ -18,7 +18,6 @@ Highcharts.setOptions({lang: {
 var DataBase = {};
 $(function(){
   $('#tabs').tabs();
-  $('#tabs').tabs('disable','tabs-exam'); // Скоро буде...
   $('#tabs-results').tabs();
   $('button').button();
   
@@ -26,9 +25,6 @@ $(function(){
   new IeitDraw().slider({selector: '#admission-slider', input: '#admission', value: 40, min: 0, max: 100, step: 1});
   new IeitDraw().slider({selector: '#sel-level-slider', input: '#sel-level'});
   
-  //$('#set-opt').buttonset();
-  //$('#set-kfe').buttonset();
-  //$('#set-opt').buttonset('disable');
   
   var ieitVar = new Ieit('#drop-zone');
   
@@ -37,6 +33,14 @@ $(function(){
     ieitVar.drawTrainingMatrixes('#training-matrix');
   });
 
+  var training;
+  function setExamSlider(trainingVal) {
+    training = trainingVal;
+    new IeitDraw().slider({selector: '#exam-class-slider', input: '#exam-class', value: 1, min: 1, max: ieitVar.getLength(), step: 1});
+    new IeitDraw().slider({selector: '#exam-impl-slider', input: '#exam-impl', value: 1, min: 1, max: ieitVar.getImplCount(), step: 1});
+    return 0;
+  }
+  
   $('#set-kfe').buttonset().change(function(){
     ieitVar.training({kfeType: $('input:checked', this).attr('id')});
     ieitVar.trainingBasic.drawBinaryMatrixes('#binary-matrix');
@@ -45,16 +49,33 @@ $(function(){
     ieitVar.trainingBasic.printOptimalRadius('#radius');
     ieitVar.trainingBasic.drawOptimization('#optimization-chart');
     ieitVar.trainingBasic.printCodeDistance('#code-distance');
-    
+    setExamSlider(ieitVar.trainingBasic);
   });
   $('#set-opt').buttonset().change(function(){
-    ieitVar.optimizationParallel();
-    ieitVar.trainingParallel.drawBinaryMatrixes('#binary-matrix');
-    ieitVar.trainingParallel.drawEtalonVectors('#etalon-matrix');
-    ieitVar.trainingParallel.printCharacteristics('#characteristics');
-    ieitVar.trainingParallel.printOptimalRadius('#radius');
-    ieitVar.trainingParallel.drawOptimization('#optimization-chart');
-    ieitVar.trainingParallel.printCodeDistance('#code-distance');
-    
+    if($('input:checked', this).attr('id') == 'parallel') {
+      ieitVar.optimizationParallel();
+      ieitVar.trainingParallel.drawBinaryMatrixes('#binary-matrix');
+      ieitVar.trainingParallel.drawEtalonVectors('#etalon-matrix');
+      ieitVar.trainingParallel.printCharacteristics('#parallel-characteristics');
+      ieitVar.trainingParallel.printOptimalRadius('#radius');
+      ieitVar.trainingParallel.drawOptimization('#parallel-optimization-chart');
+      ieitVar.trainingParallel.printCodeDistance('#code-distance');
+      setExamSlider(ieitVar.trainingParallel);
+    }
+    else {
+      ieitVar.optimizationSeries();
+      ieitVar.trainingSeries.drawBinaryMatrixes('#binary-matrix');
+      ieitVar.trainingSeries.drawEtalonVectors('#etalon-matrix');
+      ieitVar.trainingSeries.printCharacteristics('#series-characteristics');
+      ieitVar.trainingSeries.printOptimalRadius('#radius');
+      ieitVar.trainingSeries.drawOptimization('#series-optimization-chart');
+      ieitVar.trainingSeries.printCodeDistance('#code-distance');
+      setExamSlider(ieitVar.trainingSeries);
+    }
   });
+  
+  $('#exam-do').button().click(function() {
+    ieitVar.exam({training: training});
+  });
+  
 });

@@ -10,6 +10,10 @@ var Ieit = jQuery.Class.create({
   getLength: function() {
     return this.data.length;
   },
+  // Кількість реалізацій базового класу
+  getImplCount: function() {
+    return this.data[0].trainingMatrix[0].length;
+  },
   // Повертає масив класів розпізнавання
   getData: function() {
     return this.data;
@@ -53,7 +57,6 @@ var Ieit = jQuery.Class.create({
   },
   // Рендерінг зображень навчальних матриць
   drawTrainingMatrixes: function(selector){
-    //console.log('drawTrainingMatrixes');
     $(selector).empty();
     for(var i = 0; i < this.getLength(); i++)
       this.data[i].drawTrainingMatrix(selector);
@@ -65,7 +68,6 @@ var Ieit = jQuery.Class.create({
           admissionSel: '#admission',
           kfeType: 'shannon'
         }, options);
-    //console.log(options.kfeType);
     this.trainingBasic = new IeitTraining(this.data, {
       selectionLevel: $(options.selectionLevelSel).val(),
       admission: $(options.admissionSel).val(),
@@ -79,12 +81,40 @@ var Ieit = jQuery.Class.create({
           admissionSel: '#admission',
           kfeType: 'shannon'
         }, options);
-    //console.log(options.kfeType);
     this.trainingParallel = new IeitTraining(this.data, {
       selectionLevel: $(options.selectionLevelSel).val(),
       admission: $(options.admissionSel).val(),
       kfeType: options.kfeType,
       optimization: 'parallel'
+    });
+  },
+  
+  optimizationSeries: function(options) {
+    options = jQuery.extend({
+          selectionLevelSel: '#sel-level',
+          admissionSel: '#admission',
+          kfeType: 'shannon'
+        }, options);
+    this.trainingSeries = new IeitTraining(this.data, {
+      selectionLevel: $(options.selectionLevelSel).val(),
+      admission: $(options.admissionSel).val(),
+      kfeType: options.kfeType,
+      optimization: 'series'
+    });
+  },
+  
+  exam: function(options) {
+    options = jQuery.extend({
+          classSel: '#exam-class',
+          implementationSel: '#exam-impl',
+          examResultsSel: '#exam-results',
+          training: this.trainingBasic
+        }, options);
+    this.examData = new IeitExam({
+      training: options.training,
+      classNum: $(options.classSel).val()-1,
+      examResults: $(options.examResultsSel),
+      implementation: $(options.implementationSel).val()-1
     });
   }
   

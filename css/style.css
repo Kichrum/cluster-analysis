@@ -73,14 +73,6 @@ tr.ui-widget-content.jqgrow.ui-row-ltr td:first-child {
   margin-bottom: 10px;
 }
 
-/*
-.training-results {
-  border: 1px solid black;
-}
-.training-results div {
-  border: 1px solid black;
-}*/
-
 #code-distance {
   float: left;
   margin-right: 10px;
@@ -94,17 +86,11 @@ tr.ui-widget-content.jqgrow.ui-row-ltr td:first-child {
   display: none;
 }
 
-#characteristics, #optimization-chart {
+.characteristics, .optimization-chart {
   float: left;
 }
-#optimization-chart {
+.optimization-chart {
   width: 550px;
   margin-left: 5px;
 }
 
-
-/*
-canvas {
-  width: 200px;
-  height: 200px;
-}*/
