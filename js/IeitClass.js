@@ -27,7 +27,7 @@ var IeitClass = jQuery.Class.create({
           alpha = imageData.data[index + 3];
           // Формула яскравості: Y = 0.299 * R + 0.587 * G + 0.114 * B
           //var bright = Math.round(0.299*red + 0.587*green + 0.114*blue);
-          var bright = Math.floor(0.299*red + 0.587*green + 0.114*blue); // (<= 255)
+          var bright = red; // (<= 255)
           dataBase.trainingMatrix[x][y] = bright;
         }
       }

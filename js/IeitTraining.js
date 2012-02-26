@@ -47,12 +47,12 @@ var IeitTraining = jQuery.Class.create({
         var height = this.ieitData[i].trainingMatrix[j].length;
         this.data[i].dk[j] = 0;
         for(var k = 0; k < height; k++) {
-          this.data[i].dk[j] += this.ieitData[i].trainingMatrix[j][k];
+          this.data[i].dk[j] += this.ieitData[0].trainingMatrix[j][k];
         }
         this.data[i].dk[j] /= height;
-        this.data[i].dk[j] = Math.floor(this.data[i].dk[j]); // may be round =)
-        this.data[i].ndk[j] = this.data[i].dk[j] - this.admission;
-        this.data[i].vdk[j] = this.data[i].dk[j] + +this.admission;
+        this.data[i].dk[j] = Math.round(this.data[0].dk[j]);
+        this.data[i].ndk[j] = this.data[0].dk[j] - this.admission;
+        this.data[i].vdk[j] = this.data[0].dk[j] + +this.admission;
       }
     }
   },
