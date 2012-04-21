@@ -53,17 +53,18 @@ $(function(){
   });
   $('#set-opt').buttonset().change(function(){
     if($('input:checked', this).attr('id') == 'parallel') {
-      ieitVar.optimizationParallel();
+      ieitVar.optimizationParallel({kfeType: $('#set-kfe input:checked').attr('id')});
       ieitVar.trainingParallel.drawBinaryMatrixes('#binary-matrix');
       ieitVar.trainingParallel.drawEtalonVectors('#etalon-matrix');
       ieitVar.trainingParallel.printCharacteristics('#parallel-characteristics');
       ieitVar.trainingParallel.printOptimalRadius('#radius');
       ieitVar.trainingParallel.drawOptimization('#parallel-optimization-chart');
+      ieitVar.trainingParallel.drawIterations('#parallel-optimization-iterations-chart');
       ieitVar.trainingParallel.printCodeDistance('#code-distance');
       setExamSlider(ieitVar.trainingParallel);
     }
     else {
-      ieitVar.optimizationSeries();
+      ieitVar.optimizationSeries({kfeType: $('#set-kfe input:checked').attr('id')});
       ieitVar.trainingSeries.drawBinaryMatrixes('#binary-matrix');
       ieitVar.trainingSeries.drawEtalonVectors('#etalon-matrix');
       ieitVar.trainingSeries.printCharacteristics('#series-characteristics');
@@ -76,6 +77,10 @@ $(function(){
   
   $('#exam-do').button().click(function() {
     ieitVar.exam({training: training});
+  });
+  
+  $('#clustering').button().click(function() {
+    ieitVar.clustering();
   });
   
 });

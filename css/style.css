@@ -48,11 +48,11 @@ body {
 table .ui-jqgrid tr.jqgrow td {
   padding: 0;
 }
-/*
-.matrix canvas {
-  margin-right: 5px;
+
+#training-matrix canvas {
+  height: 100px;
 }
-*/
+
 tr.ui-widget-content.jqgrow.ui-row-ltr td:first-child {
   font-weight: bold;
 }
@@ -86,11 +86,13 @@ tr.ui-widget-content.jqgrow.ui-row-ltr td:first-child {
   display: none;
 }
 
-.characteristics, .optimization-chart {
+.characteristics, .chart-container, #restabs-characteristics .optimization-chart {
   float: left;
 }
-.optimization-chart {
+.chart-container {
   width: 550px;
+}
+.optimization-chart {
+  width: 545px;
   margin-left: 5px;
 }
-

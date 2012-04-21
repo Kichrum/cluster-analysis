@@ -14,6 +14,7 @@
     <script type="text/javascript" src="js/classy.js"></script>
     
     <script type="text/javascript" src="js/IeitDraw.js"></script>
+    <script type="text/javascript" src="js/IeitCluster.js"></script>
     <script type="text/javascript" src="js/IeitTraining.js"></script>
     <script type="text/javascript" src="js/IeitClass.js"></script>
     <script type="text/javascript" src="js/Ieit.js"></script>
@@ -32,7 +33,7 @@
 			<div id="tabs-input">
       
         <div id="drop-zone">
-          <span class="instruction">Перетягніть сюди зображення для розпізнавання</span>
+          <span class="instruction">Перетягніть сюди вхідни дані для розпізнавання</span>
         </div>
         <div class="matrix training">
           <h3>Навчальні матриці</h3>
@@ -54,6 +55,7 @@
             <div id="sel-level-slider" class="slider"></div>
           </div>
           <div>
+            <div>Виконати <button id="clustering">кластеризацію</button></div>
             <form id="set-kfe">
               Навчання за критерієм <input type="radio" id="shannon" name="radio" /><label for="shannon">Шеннона
               </label><input type="radio" id="kulbak" name="radio" /><label for="kulbak">Кульбака</label>
@@ -97,7 +99,10 @@
         </div>
         <div id="restabs-parallel">
           <div id="parallel-characteristics" class="characteristics"></div>
-          <div id="parallel-optimization-chart" class="optimization-chart"></div>
+          <div class="chart-container">
+            <div id="parallel-optimization-iterations-chart" class="optimization-chart"></div>
+            <div id="parallel-optimization-chart" class="optimization-chart"></div>
+          </div>
           <div class="clr"></div>
         </div>
         <div id="restabs-series">

@@ -2,11 +2,18 @@
   * Клас одного класу розпізнавання в ІЕІТ
   */
 var IeitClass = jQuery.Class.create({
-  init: function(source) {
-    this.trainingMatrix = Array();
-    this.trainingMatrixCreate(source);
+  init: function(source, isText) {
+    if(isText != false) {
+      this.trainingMatrix = source;
+      //this.trainingMatrixImage = Array();
+      //this.trainingMatrixCreateFromText(source, source[0][0], source[0][0]);
+    }
+    else {
+      this.trainingMatrix = Array();
+      this.trainingMatrixCreate(source);
+    }
   },
-  // Створення навчальної матриці
+  // Створення навчальної матриці із зображення
   trainingMatrixCreate: function(src) {
     var image = new Image();
     var dataBase = this;
@@ -35,10 +42,26 @@ var IeitClass = jQuery.Class.create({
     image.src = src;
     return true;
   },
+  // Створення навчальної матриці із текстових даних
+  trainingMatrixCreateFromText: function(src, min, max) {
+    this.trainingMatrixImage = Array();
+    var coef = 255 / ( max - min );
+    for(var x = 0; x < src.length; x++) {
+      this.trainingMatrixImage[x] = Array();
+      for(var y = 0; y < src[x].length; y++) {
+        this.trainingMatrixImage[x][y] = parseInt(src[x][y] * coef + 0.5);
+      }
+    }
+    //console.log(this.trainingMatrixImage);
+    return true;
+  },
   // Виведення навчальної матриці зображенням
   drawTrainingMatrix: function(selector) {
     //console.log('drawTrainingMatrix('+selector+')');
-    new IeitDraw().imageFromMatrix(this.trainingMatrix, selector);
+    if(this.trainingMatrixImage)
+      new IeitDraw().imageFromMatrix(this.trainingMatrixImage, selector);
+    else
+      new IeitDraw().imageFromMatrix(this.trainingMatrix, selector);
   }
   
 });
